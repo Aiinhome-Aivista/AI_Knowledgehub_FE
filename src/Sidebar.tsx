@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
+import { ENDPOINTS } from '../config/endpoint';
+
 interface Topic {
   name: string;
   category: string;
@@ -18,7 +20,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onTopicSelect }) => {
   useEffect(() => {
     const fetchTopics = async () => {
       try {
-        const res = await fetch('http://localhost:5000/api/topics');
+        const res = await fetch(ENDPOINTS.TOPICS);
         const data = await res.json();
         if (!data.error) {
             setTopics(data);

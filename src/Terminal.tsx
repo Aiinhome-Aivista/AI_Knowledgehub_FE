@@ -1,12 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 
+import { ENDPOINTS } from '../config/endpoint';
+
 const Terminal: React.FC = () => {
   const [logs, setLogs] = useState<string[]>([]);
   const endRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // Connect to Server-Sent Events endpoint
-    const eventSource = new EventSource('http://localhost:5000/api/stream-logs');
+    const eventSource = new EventSource(ENDPOINTS.STREAM_LOGS);
 
     eventSource.onmessage = (event) => {
       const data = event.data;

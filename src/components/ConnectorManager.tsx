@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { ENDPOINTS } from '../../config/endpoint';
 
 interface Connector {
   id?: string;
@@ -45,7 +46,7 @@ const ConnectorManager: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
   const fetchConnectors = async () => {
     setLoading(true);
     try {
-      const res = await fetch('http://localhost:5000/api/connectors');
+      const res = await fetch(ENDPOINTS.CONNECTORS);
       const data = await res.json();
       if (Array.isArray(data)) {
         setConnectors(data);
@@ -67,7 +68,7 @@ const ConnectorManager: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
   const handleSaveConnectors = async (updatedConnectors: Connector[], isAdd: boolean = false) => {
     setActionLoading(true);
     try {
-      const res = await fetch('http://localhost:5000/api/connectors', {
+      const res = await fetch(ENDPOINTS.CONNECTORS, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updatedConnectors)

@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { ENDPOINTS } from '../../config/endpoint';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -50,7 +51,7 @@ const RAGChat: React.FC<RAGChatProps> = ({ initialInput, onClearInitialInput, na
     setIsLoading(true);
 
     try {
-      const res = await fetch('http://localhost:5000/api/chat', {
+      const res = await fetch(ENDPOINTS.CHAT, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: messageText })

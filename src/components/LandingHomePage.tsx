@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { ENDPOINTS } from '../../config/endpoint';
 
 interface LandingHomePageProps {
   onNavigateToLogin: () => void;
@@ -25,7 +26,7 @@ const LandingHomePage: React.FC<LandingHomePageProps> = ({ onNavigateToLogin, th
 
     const safeFetch = async () => {
       try {
-        const res = await fetch('http://localhost:5000/api/landing-data', {
+        const res = await fetch(ENDPOINTS.LANDING_DATA, {
           signal: controller.signal,
         });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);

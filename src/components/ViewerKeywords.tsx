@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { ENDPOINTS } from '../../config/endpoint';
 
 interface Topic {
   name: string;
@@ -20,7 +21,7 @@ const ViewerKeywords: React.FC<ViewerKeywordsProps> = ({ onKeywordSelect, onBack
   useEffect(() => {
     const fetchTopics = async () => {
       try {
-        const res = await fetch('http://localhost:5000/api/topics');
+        const res = await fetch(ENDPOINTS.TOPICS);
         const data = await res.json();
         if (!data.error) {
           setTopics(data);

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { ENDPOINTS } from '../../config/endpoint';
 
 const AdminLLM: React.FC = () => {
   const [llmUrl, setLlmUrl] = useState('');
@@ -11,7 +12,7 @@ const AdminLLM: React.FC = () => {
   const fetchSettings = async () => {
     setLoading(true);
     try {
-      const res = await fetch('http://localhost:5000/api/settings');
+      const res = await fetch(ENDPOINTS.SETTINGS);
       const data = await res.json();
       setLlmUrl(data.llm_url || '');
       setLlmModel(data.llm_model || '');
@@ -35,7 +36,7 @@ const AdminLLM: React.FC = () => {
     setMessage(null);
     try {
       // 1. Fetch current settings first
-      const currentRes = await fetch('http://localhost:5000/api/settings');
+      const currentRes = await fetch(ENDPOINTS.SETTINGS);
       const currentSettings = await currentRes.json();
       
       // 2. Merge details
@@ -45,7 +46,7 @@ const AdminLLM: React.FC = () => {
         llm_model: llmModel.trim()
       };
 
-      const res = await fetch('http://localhost:5000/api/settings', {
+      const res = await fetch(ENDPOINTS.SETTINGS, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updatedSettings)
@@ -69,7 +70,7 @@ const AdminLLM: React.FC = () => {
     setTestLoading(true);
     setMessage({ text: 'Testing connection to LLM...', type: 'info' });
     try {
-      const res = await fetch('http://localhost:5000/api/test-llm', {
+      const res = await fetch(ENDPOINTS.TEST_LLM, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

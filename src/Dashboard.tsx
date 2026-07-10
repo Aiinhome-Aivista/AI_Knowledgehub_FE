@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { ENDPOINTS } from '../config/endpoint';
 import AdminLLM from './components/AdminLLM';
 import AdminRSS from './components/AdminRSS';
 import AdminScheduling from './components/AdminScheduling';
@@ -41,8 +42,8 @@ const Dashboard: React.FC<DashboardProps> = ({ role, email, name, onLogout, them
     setLoadingSettings(true);
     try {
       const [schedRes, logsRes] = await Promise.all([
-        fetch('http://localhost:5000/api/scheduler-status'),
-        fetch('http://localhost:5000/api/ingestion-logs')
+        fetch(ENDPOINTS.SCHEDULER_STATUS),
+        fetch(ENDPOINTS.INGESTION_LOGS)
       ]);
       const schedData = await schedRes.json();
       const logsData = await logsRes.json();
