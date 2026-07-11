@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { endpoint } from '../config/endpoint';
 
 interface LoginProps {
   onLogin: (role: 'admin' | 'viewer', email: string, name: string) => void;
@@ -17,7 +18,7 @@ const Login: React.FC<LoginProps> = ({ onLogin, onBack, theme, toggleTheme }) =>
     const cleanEmail = email.trim().toLowerCase();
 
     try {
-      const response = await fetch('http://localhost:5000/api/login', {
+      const response = await fetch(endpoint.LOGIN, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

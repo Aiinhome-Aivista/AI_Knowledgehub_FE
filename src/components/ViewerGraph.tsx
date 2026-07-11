@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { endpoint } from '../../config/endpoint';
 
 interface ViewerGraphProps {
   theme: 'light' | 'dark';
@@ -32,7 +33,7 @@ const ViewerGraph: React.FC<ViewerGraphProps> = ({ theme }) => {
     setLoading(true);
     setError(null);
 
-    fetch('http://localhost:5000/api/graph-data')
+    fetch(endpoint.GRAPH_DATA)
       .then(response => response.json())
       .then(data => {
         setLoading(false);

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { endpoint } from '../../config/endpoint';
 
 const SystemTerminal: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
   const [logs, setLogs] = useState<string[]>([]);
@@ -6,7 +7,7 @@ const SystemTerminal: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
   const endRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const eventSource = new EventSource('http://localhost:5000/api/stream-logs');
+    const eventSource = new EventSource(endpoint.STREAM_LOGS);
 
     eventSource.onmessage = (event) => {
       const data = event.data;

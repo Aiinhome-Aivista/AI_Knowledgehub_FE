@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { endpoint } from '../../config/endpoint';
 
 const AdminRSS: React.FC = () => {
   const [rssUrls, setRssUrls] = useState<string[]>([]);
@@ -10,7 +11,7 @@ const AdminRSS: React.FC = () => {
   const fetchSettings = async () => {
     setLoading(true);
     try {
-      const res = await fetch('http://localhost:5000/api/settings');
+      const res = await fetch(endpoint.SETTINGS);
       const data = await res.json();
       setRssUrls(data.rss_urls || []);
     } catch (err) {
@@ -29,7 +30,7 @@ const AdminRSS: React.FC = () => {
     setActionLoading(true);
     try {
       // 1. Fetch latest settings
-      const currentRes = await fetch('http://localhost:5000/api/settings');
+      const currentRes = await fetch(endpoint.SETTINGS);
       const currentSettings = await currentRes.json();
 
       // 2. Merge urls
@@ -38,7 +39,7 @@ const AdminRSS: React.FC = () => {
         rss_urls: updatedUrls
       };
 
-      const res = await fetch('http://localhost:5000/api/settings', {
+      const res = await fetch(endpoint.SETTINGS, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updatedSettings)

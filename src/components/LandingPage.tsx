@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { endpoint } from '../../config/endpoint';
 
 interface Topic {
   id: number;
@@ -47,7 +48,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onCardClick }) => {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch('http://localhost:5000/api/landing-data');
+      const res = await fetch(endpoint.LANDING_DATA);
       if (!res.ok) {
         throw new Error('Failed to retrieve landing stats.');
       }

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { endpoint } from '../../config/endpoint';
 
 interface Article {
   id: number;
@@ -19,7 +20,7 @@ const ViewerSources: React.FC<ViewerSourcesProps> = ({ onBack }) => {
   const fetchArticles = async () => {
     setLoading(true);
     try {
-      const res = await fetch('http://localhost:5000/api/articles');
+      const res = await fetch(endpoint.ARTICLES);
       const data = await res.json();
       setArticles(data || []);
     } catch (err) {

@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { endpoint } from '../../config/endpoint';
 
 interface SchedulerLog {
   id: number;
@@ -93,7 +94,7 @@ const AdminScheduling: React.FC = () => {
 
   const fetchStatus = useCallback(async () => {
     try {
-      const res = await fetch('http://localhost:5000/api/scheduler-status');
+      const res = await fetch(endpoint.SCHEDULER_STATUS);
       const data = await res.json();
       setStatus(data);
       if (data.interval_hours) setIntervalHours(data.interval_hours);
@@ -105,7 +106,7 @@ const AdminScheduling: React.FC = () => {
   const fetchLogs = useCallback(async () => {
     setLogsLoading(true);
     try {
-      const res = await fetch('http://localhost:5000/api/scheduler-logs?limit=50');
+      const res = await fetch(`${endpoint.SCHEDULER_LOGS}?limit=50`);
       const data = await res.json();
       if (Array.isArray(data)) setLogs(data);
     } catch (err) {
@@ -128,10 +129,10 @@ const AdminScheduling: React.FC = () => {
     setActionLoading(true);
     setMessage(null);
     try {
-      const currentRes = await fetch('http://localhost:5000/api/settings');
+      const currentRes = await fetch(endpoint.SETTINGS);
       const currentSettings = await currentRes.json();
       const updatedSettings = { ...currentSettings, scheduler_interval_hours: intervalHours };
-      const res = await fetch('http://localhost:5000/api/settings', {
+      const res = await fetch(endpoint.SETTINGS, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updatedSettings)
@@ -154,7 +155,7 @@ const AdminScheduling: React.FC = () => {
     setActionLoading(true);
     setMessage(null);
     try {
-      const res = await fetch('http://localhost:5000/api/trigger-scrape', { method: 'POST' });
+      const res = await fetch(endpoint.TRIGGER_SCRAPE, { method: 'POST' });
       const data = await res.json();
       if (data.status === 'success') {
         setMessage({ text: '⚡ Scraping task triggered manually. Check Terminal for live progress.', type: 'success' });

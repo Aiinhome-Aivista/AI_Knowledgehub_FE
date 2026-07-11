@@ -9,6 +9,7 @@ import ViewerKeywords from './components/ViewerKeywords';
 import ViewerSources from './components/ViewerSources';
 import ConnectorManager from './components/ConnectorManager';
 import LandingPage from './components/LandingPage';
+import { endpoint } from '../config/endpoint';
 
 interface DashboardProps {
   role: 'admin' | 'viewer';
@@ -41,8 +42,8 @@ const Dashboard: React.FC<DashboardProps> = ({ role, email, name, onLogout, them
     setLoadingSettings(true);
     try {
       const [schedRes, logsRes] = await Promise.all([
-        fetch('http://localhost:5000/api/scheduler-status'),
-        fetch('http://localhost:5000/api/ingestion-logs')
+        fetch(endpoint.SCHEDULER_STATUS),
+        fetch(endpoint.INGESTION_LOGS)
       ]);
       const schedData = await schedRes.json();
       const logsData = await logsRes.json();
