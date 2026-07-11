@@ -15,16 +15,21 @@ interface ViewerSourcesProps {
 const ViewerSources: React.FC<ViewerSourcesProps> = ({ onBack }) => {
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
 
   const fetchArticles = async () => {
     setLoading(true);
+    setError(null);
     try {
       const res = await fetch(endpoint.ARTICLES);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
-      setArticles(data || []);
-    } catch (err) {
+      const articlesArray = Array.isArray(data) ? data : (data && Array.isArray(data.data) ? data.data : []);
+      setArticles(articlesArray);
+    } catch (err: any) {
       console.error('Failed to fetch articles:', err);
+      setError(err.message || 'Failed to fetch articles.');
     } finally {
       setLoading(false);
     }
@@ -80,9 +85,25 @@ const ViewerSources: React.FC<ViewerSourcesProps> = ({ onBack }) => {
             <div className="flex justify-center items-center py-20">
               <div className="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
             </div>
+          ) : error ? (
+            <div className="text-center py-16 space-y-3 animate-in fade-in duration-300">
+              <p className="text-rose-400 text-sm font-semibold">Failed to load articles</p>
+              <p className="text-xs theme-text-secondary">{error}</p>
+              <button
+                onClick={fetchArticles}
+                className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-semibold cursor-pointer transition-colors"
+              >
+                Retry
+              </button>
+            </div>
+          ) : (!articles || articles.length === 0) ? (
+            <div className="text-center py-20 space-y-2 animate-in fade-in duration-300">
+              <p className="theme-text-primary text-sm font-bold">No Data Found</p>
+              <p className="text-xs theme-text-secondary">No articles scraped yet. Please run scraping from Admin panel.</p>
+            </div>
           ) : filteredArticles.length === 0 ? (
             <div className="text-center theme-text-secondary py-20 italic">
-              {articles.length === 0 ? 'No articles scraped yet. Please run scraping from Admin panel.' : 'No search results found.'}
+              No search results found.
             </div>
           ) : (
             <div className="overflow-hidden border rounded-xl theme-border">

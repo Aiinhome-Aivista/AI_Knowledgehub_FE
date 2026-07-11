@@ -13,25 +13,33 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ onTopicSelect }) => {
   const [topics, setTopics] = useState<Topic[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [showLabels, setShowLabels] = useState(true);
 
-  useEffect(() => {
-    const fetchTopics = async () => {
-      try {
-        const res = await fetch(endpoint.TOPICS);
-        const data = await res.json();
-        if (!data.error) {
-          setTopics(data);
-        }
-      } catch (error) {
-        console.error("Failed to fetch topics:", error);
-      } finally {
-        setLoading(false);
+  const fetchTopics = React.useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(endpoint.TOPICS);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      if (data && (data.error || data.status === 'error')) {
+        throw new Error(data.error || data.message || "Failed to fetch topics.");
       }
-    };
-    fetchTopics();
+      const topicsArray = Array.isArray(data) ? data : (data && Array.isArray(data.data) ? data.data : []);
+      setTopics(topicsArray);
+    } catch (err: any) {
+      console.error("Failed to fetch topics:", err);
+      setError(err.message || "Failed to fetch topics.");
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    fetchTopics();
+  }, [fetchTopics]);
 
   // Filter topics based on search query
   const filteredTopics = topics.filter(t => t.name.toLowerCase().includes(search.toLowerCase()));
@@ -88,6 +96,25 @@ const Sidebar: React.FC<SidebarProps> = ({ onTopicSelect }) => {
         {loading ? (
           <div className="p-5 flex justify-center">
             <div className="w-5 h-5 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+          </div>
+        ) : error ? (
+          <div className="p-8 text-center text-rose-400 text-sm">
+            <p className="font-semibold">Error Loading Entities</p>
+            <p className="text-xs theme-text-secondary mt-1">{error}</p>
+            <button 
+              onClick={() => fetchTopics()}
+              className="mt-3 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-semibold cursor-pointer transition-colors"
+            >
+              Retry
+            </button>
+          </div>
+        ) : (!topics || topics.length === 0) ? (
+          <div className="p-8 text-center theme-text-secondary text-sm flex flex-col items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 mb-3 text-amber-500/80" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            No Data Found
+            <p className="text-xs mt-1">No topics indexed yet. Please run background ingestion from the Admin Panel.</p>
           </div>
         ) : search.trim() === '' ? (
           <div className="p-8 text-center theme-text-secondary text-sm flex flex-col items-center">

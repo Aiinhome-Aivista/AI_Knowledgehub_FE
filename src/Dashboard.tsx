@@ -36,21 +36,26 @@ const Dashboard: React.FC<DashboardProps> = ({ role, email, name, onLogout, them
   const [schedulerStatus, setSchedulerStatus] = useState<any>(null);
   const [ingestionLogs, setIngestionLogs] = useState<any[]>([]);
   const [loadingSettings, setLoadingSettings] = useState(false);
+  const [settingsError, setSettingsError] = useState<string | null>(null);
 
   const handleOpenSettings = async () => {
     setSettingsModalOpen(true);
     setLoadingSettings(true);
+    setSettingsError(null);
     try {
       const [schedRes, logsRes] = await Promise.all([
         fetch(endpoint.SCHEDULER_STATUS),
         fetch(endpoint.INGESTION_LOGS)
       ]);
+      if (!schedRes.ok) throw new Error(`Scheduler Status API: ${schedRes.statusText}`);
+      if (!logsRes.ok) throw new Error(`Ingestion Logs API: ${logsRes.statusText}`);
       const schedData = await schedRes.json();
       const logsData = await logsRes.json();
       setSchedulerStatus(schedData);
       setIngestionLogs(logsData);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to load settings modal data:', err);
+      setSettingsError(err.message || 'Failed to retrieve settings modal data.');
     } finally {
       setLoadingSettings(false);
     }
@@ -481,6 +486,25 @@ const Dashboard: React.FC<DashboardProps> = ({ role, email, name, onLogout, them
                     <p className="text-xs theme-text-secondary">Loading scheduler status & audit logs...</p>
                   </div>
                 </div>
+              ) : settingsError ? (
+                <div className="py-16 text-center text-rose-400 text-sm">
+                  <p className="font-semibold">Error Loading Settings</p>
+                  <p className="text-xs theme-text-secondary mt-1">{settingsError}</p>
+                  <button 
+                    onClick={handleOpenSettings}
+                    className="mt-3 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-semibold cursor-pointer transition-colors"
+                  >
+                    Retry
+                  </button>
+                </div>
+              ) : (!schedulerStatus && (!ingestionLogs || ingestionLogs.length === 0)) ? (
+                <div className="py-16 text-center theme-text-secondary text-sm flex flex-col items-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 mb-3 text-amber-500/80" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                  No Data Found
+                  <p className="text-xs mt-1">No scheduler status or ingestion history exists.</p>
+                </div>
               ) : (
                 <>
                   {/* Operations Settings Grid */}
@@ -562,7 +586,7 @@ const Dashboard: React.FC<DashboardProps> = ({ role, email, name, onLogout, them
                             </tr>
                           </thead>
                           <tbody className="divide-y theme-border">
-                            {ingestionLogs.length === 0 ? (
+                            {(!ingestionLogs || !Array.isArray(ingestionLogs) || ingestionLogs.length === 0) ? (
                               <tr>
                                 <td colSpan={5} className="px-5 py-8 text-center theme-text-secondary italic">
                                   No audit logs found.

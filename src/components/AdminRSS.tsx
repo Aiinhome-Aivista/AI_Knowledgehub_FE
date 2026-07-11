@@ -7,16 +7,19 @@ const AdminRSS: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
   const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchSettings = async () => {
     setLoading(true);
+    setError(null);
     try {
       const res = await fetch(endpoint.SETTINGS);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       setRssUrls(data.rss_urls || []);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to fetch settings:', err);
-      setMessage({ text: 'Failed to load RSS feeds configuration.', type: 'error' });
+      setError(err.message || 'Failed to load RSS feeds configuration.');
     } finally {
       setLoading(false);
     }
@@ -96,6 +99,23 @@ const AdminRSS: React.FC = () => {
     );
   }
 
+  if (error) {
+    return (
+      <div className="p-8 flex flex-col justify-center items-center h-full space-y-4 theme-bg-primary text-center">
+        <div className="max-w-md p-6 rounded-2xl border border-red-500/20 bg-red-500/5 space-y-3 animate-in fade-in duration-300">
+          <p className="text-rose-400 font-semibold">Failed to Load RSS Configuration</p>
+          <p className="text-xs theme-text-secondary">{error}</p>
+          <button
+            onClick={fetchSettings}
+            className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold cursor-pointer transition-colors"
+          >
+            Retry Loading
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full h-full overflow-y-auto custom-scrollbar p-4 md:p-6">
       <div className="space-y-6 max-w-4xl mx-auto animate-in fade-in duration-300">
@@ -139,7 +159,7 @@ const AdminRSS: React.FC = () => {
         {/* List feeds card */}
         <div className="p-6 rounded-2xl border theme-card-bg theme-border">
           <h3 className="text-lg font-semibold theme-text-primary mb-4">Configured Feed Sources</h3>
-          {rssUrls.length === 0 ? (
+          {(!rssUrls || !Array.isArray(rssUrls) || rssUrls.length === 0) ? (
             <div className="text-sm theme-text-secondary italic text-center py-8">
               No feed sources configured. The scheduler will not fetch any articles.
             </div>

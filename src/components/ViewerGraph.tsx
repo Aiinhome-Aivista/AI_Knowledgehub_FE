@@ -10,6 +10,7 @@ const ViewerGraph: React.FC<ViewerGraphProps> = ({ theme }) => {
   const [visLoaded, setVisLoaded] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [noData, setNoData] = useState(false);
   const networkRef = useRef<any>(null);
 
   // Dynamically load vis-network script on mount
@@ -32,13 +33,17 @@ const ViewerGraph: React.FC<ViewerGraphProps> = ({ theme }) => {
 
     setLoading(true);
     setError(null);
+    setNoData(false);
 
     fetch(endpoint.GRAPH_DATA)
-      .then(response => response.json())
+      .then(response => {
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        return response.json();
+      })
       .then(data => {
         setLoading(false);
-        if (!data.nodes || data.nodes.length === 0) {
-          setError("Knowledge Graph is empty. Scrape RSS feeds to extract graph entities.");
+        if (!data || !data.nodes || data.nodes.length === 0) {
+          setNoData(true);
           return;
         }
 
@@ -165,11 +170,21 @@ const ViewerGraph: React.FC<ViewerGraphProps> = ({ theme }) => {
 
         {error && (
           <div className="absolute inset-0 flex flex-col justify-center items-center p-8 text-center z-20">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-amber-500 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-rose-500 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
             </svg>
             <p className="text-sm theme-text-primary font-medium">{error}</p>
-            <p className="text-xs theme-text-secondary mt-1">Drag canvas to pan. Use scroll wheel to zoom.</p>
+            <p className="text-xs theme-text-secondary mt-1">Please make sure the backend is running and reachable.</p>
+          </div>
+        )}
+
+        {noData && (
+          <div className="absolute inset-0 flex flex-col justify-center items-center p-8 text-center z-20">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-amber-500 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            <p className="text-sm theme-text-primary font-medium">No Data Found</p>
+            <p className="text-xs theme-text-secondary mt-1">Knowledge Graph is empty. Scrape RSS feeds to extract graph entities.</p>
           </div>
         )}
 

@@ -89,17 +89,20 @@ const AdminScheduling: React.FC = () => {
   const [actionLoading, setActionLoading] = useState(false);
   const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
   const [expandedRow, setExpandedRow] = useState<number | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const countdown = useCountdown(status?.next_run_time ?? null);
 
   const fetchStatus = useCallback(async () => {
     try {
       const res = await fetch(endpoint.SCHEDULER_STATUS);
+      if (!res.ok) throw new Error(`Status API: ${res.statusText}`);
       const data = await res.json();
       setStatus(data);
       if (data.interval_hours) setIntervalHours(data.interval_hours);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to fetch scheduler status:', err);
+      throw err;
     }
   }, []);
 
@@ -107,22 +110,33 @@ const AdminScheduling: React.FC = () => {
     setLogsLoading(true);
     try {
       const res = await fetch(`${endpoint.SCHEDULER_LOGS}?limit=50`);
+      if (!res.ok) throw new Error(`Logs API: ${res.statusText}`);
       const data = await res.json();
       if (Array.isArray(data)) setLogs(data);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to fetch scheduler logs:', err);
+      throw err;
     } finally {
       setLogsLoading(false);
     }
   }, []);
 
-  useEffect(() => {
+  const loadData = useCallback(() => {
     setLoading(true);
-    Promise.all([fetchStatus(), fetchLogs()]).finally(() => setLoading(false));
+    setError(null);
+    Promise.all([fetchStatus(), fetchLogs()])
+      .catch((err: any) => {
+        setError(err.message || 'Failed to retrieve scheduling details.');
+      })
+      .finally(() => setLoading(false));
+  }, [fetchStatus, fetchLogs]);
+
+  useEffect(() => {
+    loadData();
     const statusInterval = setInterval(fetchStatus, 10000);
     const logsInterval = setInterval(fetchLogs, 30000);
     return () => { clearInterval(statusInterval); clearInterval(logsInterval); };
-  }, [fetchStatus, fetchLogs]);
+  }, [loadData, fetchStatus, fetchLogs]);
 
   const handleSaveInterval = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -170,10 +184,27 @@ const AdminScheduling: React.FC = () => {
     }
   };
 
-  if (loading && !status) {
+  if (loading && !status && !error) {
     return (
       <div className="p-8 flex justify-center items-center h-full">
         <div className="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (error && !status) {
+    return (
+      <div className="p-8 flex flex-col justify-center items-center h-full space-y-4 theme-bg-primary text-center">
+        <div className="max-w-md p-6 rounded-2xl border border-red-500/20 bg-red-500/5 space-y-3 animate-in fade-in duration-300">
+          <p className="text-rose-400 font-semibold">Failed to Load Scheduling Data</p>
+          <p className="text-xs theme-text-secondary">{error}</p>
+          <button
+            onClick={loadData}
+            className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold cursor-pointer transition-colors"
+          >
+            Retry Loading
+          </button>
+        </div>
       </div>
     );
   }
@@ -361,11 +392,11 @@ const AdminScheduling: React.FC = () => {
             </button>
           </div>
 
-          {logsLoading && logs.length === 0 ? (
+          {logsLoading && (!logs || !Array.isArray(logs) || logs.length === 0) ? (
             <div className="p-10 flex justify-center">
               <div className="w-7 h-7 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin" />
             </div>
-          ) : logs.length === 0 ? (
+          ) : (!logs || !Array.isArray(logs) || logs.length === 0) ? (
             <div className="p-10 text-center text-sm theme-text-secondary italic">
               No run history found. History is recorded in MySQL after each scheduled or manual run.
             </div>

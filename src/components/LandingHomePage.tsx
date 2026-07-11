@@ -283,7 +283,7 @@ const LandingHomePage: React.FC<LandingHomePageProps> = ({ onNavigateToLogin, th
                 {/* Top Keywords */}
                 {activeTab === 'keywords' && (
                   <div className="p-6">
-                    {tabData.keywords.length === 0 ? (
+                    {(!tabData.keywords || tabData.keywords.length === 0) ? (
                       <p className="py-16 text-center theme-text-secondary text-sm italic">No keywords indexed yet. Run a scrape to populate this data.</p>
                     ) : (
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -306,7 +306,7 @@ const LandingHomePage: React.FC<LandingHomePageProps> = ({ onNavigateToLogin, th
                 {/* Most Searched */}
                 {activeTab === 'searches' && (
                   <div className="p-6">
-                    {tabData.searches.length === 0 ? (
+                    {(!tabData.searches || tabData.searches.length === 0) ? (
                       <p className="py-16 text-center theme-text-secondary text-sm italic">No search queries logged yet. Use the RAG chat to generate data.</p>
                     ) : (
                       <div className="space-y-3">
@@ -329,7 +329,7 @@ const LandingHomePage: React.FC<LandingHomePageProps> = ({ onNavigateToLogin, th
                 {/* Most Written About */}
                 {activeTab === 'written' && (
                   <div className="p-6">
-                    {tabData.written.length === 0 ? (
+                    {(!tabData.written || tabData.written.length === 0) ? (
                       <p className="py-16 text-center theme-text-secondary text-sm italic">No article-topic mappings found yet. Run a scrape to populate this data.</p>
                     ) : (
                       <div className="space-y-3">

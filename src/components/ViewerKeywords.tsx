@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { endpoint } from '../../config/endpoint';
 
 interface Topic {
@@ -14,26 +14,32 @@ interface ViewerKeywordsProps {
 const ViewerKeywords: React.FC<ViewerKeywordsProps> = ({ onKeywordSelect, onBack }) => {
   const [topics, setTopics] = useState<Topic[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [selectedLetter, setSelectedLetter] = useState<string>('All');
 
-  useEffect(() => {
-    const fetchTopics = async () => {
-      try {
-        const res = await fetch(endpoint.TOPICS);
-        const data = await res.json();
-        if (!data.error) {
-          setTopics(data);
-        }
-      } catch (error) {
-        console.error("Failed to fetch topics:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchTopics();
+  const fetchTopics = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(endpoint.TOPICS);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      if (data && (data.error || data.status === 'error')) throw new Error(data.error || data.message || "Failed to fetch topics.");
+      const topicsArray = Array.isArray(data) ? data : (data && Array.isArray(data.data) ? data.data : []);
+      setTopics(topicsArray);
+    } catch (err: any) {
+      console.error("Failed to fetch topics:", err);
+      setError(err.message || "Failed to fetch topics.");
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    fetchTopics();
+  }, [fetchTopics]);
 
   // Filter topics based on search query, category, and selected first letter
   const filteredTopics = topics.filter(t => {
@@ -151,6 +157,22 @@ const ViewerKeywords: React.FC<ViewerKeywordsProps> = ({ onKeywordSelect, onBack
           {loading ? (
             <div className="flex justify-center items-center py-20">
               <div className="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+            </div>
+          ) : error ? (
+            <div className="text-center py-16 space-y-3">
+              <p className="text-rose-400 text-sm font-semibold">Failed to load keywords</p>
+              <p className="text-xs theme-text-secondary">{error}</p>
+              <button
+                onClick={fetchTopics}
+                className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-semibold cursor-pointer transition-colors"
+              >
+                Retry
+              </button>
+            </div>
+          ) : (!topics || topics.length === 0) ? (
+            <div className="text-center py-16 space-y-2">
+              <p className="theme-text-primary text-sm font-bold">No Data Found</p>
+              <p className="text-xs theme-text-secondary">No keywords indexed yet. Run scraping in the Admin Panel to extract proper nouns.</p>
             </div>
           ) : sortedLetters.length === 0 ? (
             <div className="text-center theme-text-secondary py-20 italic">

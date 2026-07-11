@@ -35,6 +35,7 @@ const ConnectorManager: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
   const [actionLoading, setActionLoading] = useState(false);
   const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
   const [toast, setToast] = useState<{ visible: boolean; message: string } | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const showToast = (msg: string) => {
     setToast({ visible: true, message: msg });
@@ -45,17 +46,19 @@ const ConnectorManager: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
 
   const fetchConnectors = async () => {
     setLoading(true);
+    setError(null);
     try {
       const res = await fetch(endpoint.CONNECTORS);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
-      if (Array.isArray(data)) {
-        setConnectors(data);
-      } else {
-        setConnectors([]);
+      if (data && (data.error || data.status === 'error')) {
+        throw new Error(data.error || data.message || 'Failed to load connectors configuration.');
       }
-    } catch (err) {
+      const connectorsArray = Array.isArray(data) ? data : (data && Array.isArray(data.data) ? data.data : []);
+      setConnectors(connectorsArray);
+    } catch (err: any) {
       console.error('Failed to fetch connectors:', err);
-      setMessage({ text: 'Failed to load connectors configuration.', type: 'error' });
+      setError(err.message || 'Failed to load connectors configuration.');
     } finally {
       setLoading(false);
     }
@@ -133,6 +136,23 @@ const ConnectorManager: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
     return (
       <div className="p-8 flex justify-center items-center h-full">
         <div className="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-8 flex flex-col justify-center items-center h-full space-y-4 theme-bg-primary text-center">
+        <div className="max-w-md p-6 rounded-2xl border border-red-500/20 bg-red-500/5 space-y-3 animate-in fade-in duration-300">
+          <p className="text-rose-400 font-semibold">Failed to Load Connectors</p>
+          <p className="text-xs theme-text-secondary">{error}</p>
+          <button
+            onClick={fetchConnectors}
+            className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold cursor-pointer transition-colors"
+          >
+            Retry Loading
+          </button>
+        </div>
       </div>
     );
   }
@@ -219,7 +239,7 @@ const ConnectorManager: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
         {/* List Connectors Card */}
         <div className="p-6 rounded-2xl border theme-card-bg theme-border">
           <h3 className="text-lg font-semibold theme-text-primary mb-4">Configured Connectors</h3>
-          {connectors.length === 0 ? (
+          {(!connectors || !Array.isArray(connectors) || connectors.length === 0) ? (
             <div className="text-sm theme-text-secondary italic text-center py-8">
               No connectors configured. The background scraping engine will fall back to default RSS feeds.
             </div>
