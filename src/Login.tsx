@@ -1,7 +1,5 @@
 import { useState } from 'react';
 
-import { ENDPOINTS } from '../config/endpoint';
-
 interface LoginProps {
   onLogin: (role: 'admin' | 'viewer', email: string, name: string) => void;
   onBack: () => void;
@@ -17,18 +15,18 @@ const Login: React.FC<LoginProps> = ({ onLogin, onBack, theme, toggleTheme }) =>
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const cleanEmail = email.trim().toLowerCase();
-    
+
     try {
-      const response = await fetch(ENDPOINTS.LOGIN, {
+      const response = await fetch('http://localhost:5000/api/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ email: cleanEmail, password }),
       });
-      
+
       const data = await response.json();
-      
+
       if (response.ok && data.status === 'success') {
         onLogin(data.role, cleanEmail, data.name || '');
       } else {
@@ -79,7 +77,7 @@ const Login: React.FC<LoginProps> = ({ onLogin, onBack, theme, toggleTheme }) =>
       </div>
 
       <div className="w-full max-w-md backdrop-blur-2xl rounded-3xl p-8 shadow-2xl border transition-all duration-300 theme-card-bg theme-border shadow-indigo-500/5">
-        
+
         {/* Title */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-tr from-indigo-500 to-purple-600 shadow-xl shadow-indigo-500/20 mb-4 animate-bounce">
@@ -97,7 +95,7 @@ const Login: React.FC<LoginProps> = ({ onLogin, onBack, theme, toggleTheme }) =>
 
         {/* Form */}
         <form onSubmit={handleLoginSubmit} className="space-y-5">
-          
+
           {/* Email input */}
           <div className="space-y-2 animate-in fade-in duration-300">
             <label className="text-xs font-semibold uppercase tracking-wider theme-text-secondary">

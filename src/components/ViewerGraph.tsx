@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react';
-import { ENDPOINTS } from '../../config/endpoint';
 
 interface ViewerGraphProps {
   theme: 'light' | 'dark';
@@ -33,7 +32,7 @@ const ViewerGraph: React.FC<ViewerGraphProps> = ({ theme }) => {
     setLoading(true);
     setError(null);
 
-    fetch(ENDPOINTS.GRAPH_DATA)
+    fetch('http://localhost:5000/api/graph-data')
       .then(response => response.json())
       .then(data => {
         setLoading(false);
@@ -47,11 +46,11 @@ const ViewerGraph: React.FC<ViewerGraphProps> = ({ theme }) => {
         // Custom theme mapping on node styles
         const themedNodes = data.nodes.map((node: any) => {
           const isArticle = node.shape === 'square';
-          
+
           if (theme === 'light') {
             return {
               ...node,
-              color: isArticle 
+              color: isArticle
                 ? { background: '#f8fafc', border: '#ea580c', highlight: { background: '#f1f5f9', border: '#ea580c' } }
                 : node.color,
               font: {
@@ -174,8 +173,8 @@ const ViewerGraph: React.FC<ViewerGraphProps> = ({ theme }) => {
         )}
 
         {/* Network Mount Point */}
-        <div 
-          ref={containerRef} 
+        <div
+          ref={containerRef}
           className="w-full h-full"
           style={{ background: theme === 'light' ? '#ffffff' : '#0b0f19' }}
         ></div>

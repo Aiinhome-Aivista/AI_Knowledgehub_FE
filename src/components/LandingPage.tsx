@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { ENDPOINTS } from '../../config/endpoint';
 
 interface Topic {
   id: number;
@@ -48,7 +47,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onCardClick }) => {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(ENDPOINTS.LANDING_DATA);
+      const res = await fetch('http://localhost:5000/api/landing-data');
       if (!res.ok) {
         throw new Error('Failed to retrieve landing stats.');
       }
@@ -110,7 +109,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onCardClick }) => {
       <div className="relative overflow-hidden rounded-3xl border theme-border theme-card-bg p-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 shadow-xl shadow-indigo-500/5">
         <div className="absolute top-0 right-0 -mt-6 -mr-6 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl"></div>
         <div className="absolute bottom-0 left-0 -mb-6 -ml-6 w-32 h-32 bg-purple-500/10 rounded-full blur-2xl"></div>
-        
+
         <div className="space-y-2 relative z-10">
           <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
             System Dashboard
@@ -147,11 +146,10 @@ const LandingPage: React.FC<LandingPageProps> = ({ onCardClick }) => {
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`flex-1 py-3 text-center text-xs font-bold rounded-xl transition-all cursor-pointer ${
-                activeTab === tab
+              className={`flex-1 py-3 text-center text-xs font-bold rounded-xl transition-all cursor-pointer ${activeTab === tab
                   ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-md shadow-indigo-500/15'
                   : 'theme-text-secondary hover:theme-text-primary hover:bg-white/[0.02]'
-              }`}
+                }`}
             >
               {tabLabel}
             </button>
@@ -194,7 +192,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onCardClick }) => {
                       </thead>
                       <tbody className="divide-y theme-border">
                         {pageSlice.map((kw, idx) => (
-                           <tr key={kw.id} className="theme-hover transition-colors">
+                          <tr key={kw.id} className="theme-hover transition-colors">
                             <td className="px-6 py-4 theme-text-secondary font-semibold">{startIdx + idx + 1}</td>
                             <td className="px-6 py-4 font-bold theme-text-primary">{kw.name}</td>
                             <td className="px-6 py-4">
@@ -237,11 +235,10 @@ const LandingPage: React.FC<LandingPageProps> = ({ onCardClick }) => {
                               <button
                                 key={p}
                                 onClick={() => setKwPage(p as number)}
-                                className={`w-8 h-8 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                                  safePage === p
+                                className={`w-8 h-8 rounded-lg text-xs font-bold transition-all cursor-pointer ${safePage === p
                                     ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-md'
                                     : 'border theme-border theme-text-secondary hover:bg-indigo-500/10 hover:text-indigo-400'
-                                }`}
+                                  }`}
                               >{p}</button>
                             )
                           )
@@ -341,7 +338,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onCardClick }) => {
         {activeTab === 'coverage' && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
             {/* Relational Database Counts */}
-            <div 
+            <div
               onClick={() => onCardClick?.('articles')}
               className="p-6 rounded-2xl border theme-card-bg theme-border shadow-md flex flex-col justify-between space-y-4 cursor-pointer hover:border-indigo-500/50 hover:scale-[1.01] active:scale-[0.99] transition-all"
             >
@@ -357,7 +354,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onCardClick }) => {
               <div className="text-4xl font-extrabold text-blue-400">{data?.data_coverage.total_articles || 0}</div>
             </div>
 
-            <div 
+            <div
               onClick={() => onCardClick?.('keywords')}
               className="p-6 rounded-2xl border theme-card-bg theme-border shadow-md flex flex-col justify-between space-y-4 cursor-pointer hover:border-indigo-500/50 hover:scale-[1.01] active:scale-[0.99] transition-all"
             >
@@ -373,7 +370,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onCardClick }) => {
               <div className="text-4xl font-extrabold text-amber-400">{data?.data_coverage.total_topics || 0}</div>
             </div>
 
-            <div 
+            <div
               onClick={() => onCardClick?.('connectors')}
               className="p-6 rounded-2xl border theme-card-bg theme-border shadow-md flex flex-col justify-between space-y-4 cursor-pointer hover:border-indigo-500/50 hover:scale-[1.01] active:scale-[0.99] transition-all"
             >

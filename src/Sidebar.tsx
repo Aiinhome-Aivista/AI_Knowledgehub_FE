@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from 'react';
 
-import { ENDPOINTS } from '../config/endpoint';
-
 interface Topic {
   name: string;
   category: string;
@@ -20,10 +18,10 @@ const Sidebar: React.FC<SidebarProps> = ({ onTopicSelect }) => {
   useEffect(() => {
     const fetchTopics = async () => {
       try {
-        const res = await fetch(ENDPOINTS.TOPICS);
+        const res = await fetch('http://localhost:5000/api/topics');
         const data = await res.json();
         if (!data.error) {
-            setTopics(data);
+          setTopics(data);
         }
       } catch (error) {
         console.error("Failed to fetch topics:", error);
@@ -49,7 +47,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onTopicSelect }) => {
 
   return (
     <div className="w-80 h-full theme-bg-secondary backdrop-blur-2xl border-r theme-border flex flex-col shrink-0 animate-in fade-in duration-300">
-      
+
       {/* Header */}
       <div className="p-5 border-b theme-border">
         <div className="flex items-center justify-between">
@@ -68,7 +66,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onTopicSelect }) => {
           </button>
         </div>
         <p className="text-xs theme-text-secondary mt-1">Knowledge graph proper nouns</p>
-        
+
         {/* Search */}
         <div className="mt-4 relative">
           <input
@@ -110,7 +108,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onTopicSelect }) => {
                 </div>
                 <div className="space-y-1">
                   {groupedTopics[letter].map((topic, idx) => (
-                    <div 
+                    <div
                       key={idx}
                       onClick={() => onTopicSelect && onTopicSelect(topic.name)}
                       className="group px-3 py-2.5 rounded-lg theme-hover transition-colors cursor-pointer border border-transparent hover:border-indigo-500/10 flex items-center justify-between"

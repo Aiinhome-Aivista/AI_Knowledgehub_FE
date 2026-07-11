@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { ENDPOINTS } from '../../config/endpoint';
 
 interface LandingHomePageProps {
   onNavigateToLogin: () => void;
@@ -26,7 +25,7 @@ const LandingHomePage: React.FC<LandingHomePageProps> = ({ onNavigateToLogin, th
 
     const safeFetch = async () => {
       try {
-        const res = await fetch(ENDPOINTS.LANDING_DATA, {
+        const res = await fetch('http://localhost:5000/api/landing-data', {
           signal: controller.signal,
         });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -259,11 +258,10 @@ const LandingHomePage: React.FC<LandingHomePageProps> = ({ onNavigateToLogin, th
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                  activeTab === tab.id
+                className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${activeTab === tab.id
                     ? 'bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-500/20'
                     : 'theme-text-secondary hover:text-indigo-400 hover:bg-white/5'
-                }`}
+                  }`}
               >
                 {tab.label}
               </button>

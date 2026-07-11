@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect } from 'react';
-import { ENDPOINTS } from '../../config/endpoint';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -24,10 +23,10 @@ const RAGChat: React.FC<RAGChatProps> = ({ initialInput, onClearInitialInput, na
     if (initialInput) {
       const userMessage = `Tell me about ${initialInput}`;
       setInput(userMessage);
-      
+
       // Auto-submit the keyword query
       submitMessage(userMessage);
-      
+
       // Clear it from parent state so we can query again
       if (onClearInitialInput) {
         onClearInitialInput();
@@ -51,14 +50,14 @@ const RAGChat: React.FC<RAGChatProps> = ({ initialInput, onClearInitialInput, na
     setIsLoading(true);
 
     try {
-      const res = await fetch(ENDPOINTS.CHAT, {
+      const res = await fetch('http://localhost:5000/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: messageText })
       });
-      
+
       const data = await res.json();
-      
+
       if (data.error) {
         setMessages(prev => [...prev, { role: 'assistant', content: `Error: ${data.error}` }]);
       } else {
@@ -79,21 +78,20 @@ const RAGChat: React.FC<RAGChatProps> = ({ initialInput, onClearInitialInput, na
 
   return (
     <div className="flex flex-col h-full overflow-hidden animate-in fade-in duration-300">
-      
+
       {/* Dynamic chat area */}
       <div className="flex-1 overflow-y-auto p-4 md:p-6 custom-scrollbar space-y-6">
         <div className="max-w-4xl mx-auto space-y-6">
           {messages.map((msg, idx) => (
-            <div 
-              key={idx} 
+            <div
+              key={idx}
               className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-in fade-in duration-300`}
             >
-              <div 
-                className={`max-w-[85%] md:max-w-[75%] rounded-2xl p-4 shadow-sm border transition-all ${
-                  msg.role === 'user' 
-                    ? 'bg-gradient-to-br from-indigo-500 to-indigo-600 text-white border-transparent rounded-br-none shadow-indigo-500/5' 
+              <div
+                className={`max-w-[85%] md:max-w-[75%] rounded-2xl p-4 shadow-sm border transition-all ${msg.role === 'user'
+                    ? 'bg-gradient-to-br from-indigo-500 to-indigo-600 text-white border-transparent rounded-br-none shadow-indigo-500/5'
                     : 'theme-card-bg theme-text-primary theme-border rounded-bl-none'
-                }`}
+                  }`}
               >
                 <div className="text-[14px] whitespace-pre-wrap leading-relaxed">
                   {msg.content}

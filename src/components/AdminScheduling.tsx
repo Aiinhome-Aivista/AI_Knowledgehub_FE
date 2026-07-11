@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from 'react';
-import { ENDPOINTS } from '../../config/endpoint';
 
 interface SchedulerLog {
   id: number;
@@ -94,7 +93,7 @@ const AdminScheduling: React.FC = () => {
 
   const fetchStatus = useCallback(async () => {
     try {
-      const res = await fetch(ENDPOINTS.SCHEDULER_STATUS);
+      const res = await fetch('http://localhost:5000/api/scheduler-status');
       const data = await res.json();
       setStatus(data);
       if (data.interval_hours) setIntervalHours(data.interval_hours);
@@ -106,7 +105,7 @@ const AdminScheduling: React.FC = () => {
   const fetchLogs = useCallback(async () => {
     setLogsLoading(true);
     try {
-      const res = await fetch(`${ENDPOINTS.SCHEDULER_LOGS}?limit=50`);
+      const res = await fetch('http://localhost:5000/api/scheduler-logs?limit=50');
       const data = await res.json();
       if (Array.isArray(data)) setLogs(data);
     } catch (err) {
@@ -129,10 +128,10 @@ const AdminScheduling: React.FC = () => {
     setActionLoading(true);
     setMessage(null);
     try {
-      const currentRes = await fetch(ENDPOINTS.SETTINGS);
+      const currentRes = await fetch('http://localhost:5000/api/settings');
       const currentSettings = await currentRes.json();
       const updatedSettings = { ...currentSettings, scheduler_interval_hours: intervalHours };
-      const res = await fetch(ENDPOINTS.SETTINGS, {
+      const res = await fetch('http://localhost:5000/api/settings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updatedSettings)
@@ -155,7 +154,7 @@ const AdminScheduling: React.FC = () => {
     setActionLoading(true);
     setMessage(null);
     try {
-      const res = await fetch(ENDPOINTS.TRIGGER_SCRAPE, { method: 'POST' });
+      const res = await fetch('http://localhost:5000/api/trigger-scrape', { method: 'POST' });
       const data = await res.json();
       if (data.status === 'success') {
         setMessage({ text: '⚡ Scraping task triggered manually. Check Terminal for live progress.', type: 'success' });
@@ -206,11 +205,10 @@ const AdminScheduling: React.FC = () => {
 
         {/* Feedback message */}
         {message && (
-          <div className={`p-4 rounded-xl border text-sm flex items-start gap-2 ${
-            message.type === 'success'
+          <div className={`p-4 rounded-xl border text-sm flex items-start gap-2 ${message.type === 'success'
               ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
               : 'bg-red-500/10 border-red-500/20 text-red-400'
-          }`}>
+            }`}>
             {message.text}
             <button className="ml-auto opacity-60 hover:opacity-100" onClick={() => setMessage(null)}>✕</button>
           </div>

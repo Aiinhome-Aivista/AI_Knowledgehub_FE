@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { ENDPOINTS } from '../../config/endpoint';
 
 interface Connector {
   id?: string;
@@ -46,7 +45,7 @@ const ConnectorManager: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
   const fetchConnectors = async () => {
     setLoading(true);
     try {
-      const res = await fetch(ENDPOINTS.CONNECTORS);
+      const res = await fetch('http://localhost:5000/api/connectors');
       const data = await res.json();
       if (Array.isArray(data)) {
         setConnectors(data);
@@ -68,7 +67,7 @@ const ConnectorManager: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
   const handleSaveConnectors = async (updatedConnectors: Connector[], isAdd: boolean = false) => {
     setActionLoading(true);
     try {
-      const res = await fetch(ENDPOINTS.CONNECTORS, {
+      const res = await fetch('http://localhost:5000/api/connectors', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updatedConnectors)
@@ -264,7 +263,7 @@ const ConnectorManager: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
           )}
         </div>
       </div>
-      
+
       {/* Toast Notification Popup Banner */}
       {toast && toast.visible && (
         <div className="fixed bottom-6 right-6 z-50 flex items-center space-x-3 px-5 py-3.5 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-2xl shadow-xl shadow-emerald-500/10 border border-emerald-400/20 animate-in fade-in slide-in-from-bottom-5 duration-300">

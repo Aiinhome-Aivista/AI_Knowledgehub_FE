@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { ENDPOINTS } from '../config/endpoint';
 import AdminLLM from './components/AdminLLM';
 import AdminRSS from './components/AdminRSS';
 import AdminScheduling from './components/AdminScheduling';
@@ -42,8 +41,8 @@ const Dashboard: React.FC<DashboardProps> = ({ role, email, name, onLogout, them
     setLoadingSettings(true);
     try {
       const [schedRes, logsRes] = await Promise.all([
-        fetch(ENDPOINTS.SCHEDULER_STATUS),
-        fetch(ENDPOINTS.INGESTION_LOGS)
+        fetch('http://localhost:5000/api/scheduler-status'),
+        fetch('http://localhost:5000/api/ingestion-logs')
       ]);
       const schedData = await schedRes.json();
       const logsData = await logsRes.json();
@@ -377,7 +376,7 @@ const Dashboard: React.FC<DashboardProps> = ({ role, email, name, onLogout, them
         {role === 'admin' ? (
           <div className="flex-1 h-full overflow-hidden">
             {adminTab === 'landing' && (
-              <LandingPage 
+              <LandingPage
                 onCardClick={(type) => {
                   setPrevAdminTab('landing');
                   if (type === 'articles') setAdminTab('logs');
@@ -408,7 +407,7 @@ const Dashboard: React.FC<DashboardProps> = ({ role, email, name, onLogout, them
         ) : (
           <div className="flex-1 h-full overflow-hidden flex flex-col">
             {viewerTab === 'landing' && (
-              <LandingPage 
+              <LandingPage
                 onCardClick={(type) => {
                   setPrevViewerTab('landing');
                   if (type === 'articles') setViewerTab('sources');
